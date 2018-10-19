@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="lbl.mapper.WordMapper">
+
+<select id="queryWord" resultType="lbl.entry.Word" >
+SELECT * FROM (
+  SELECT id,word,answer,'true' AS res FROM cet_four WHERE id=(SELECT wordprocess FROM USER WHERE wechatid=${wechatid})	
+UNION 
+  SELECT b.id,b.word,b.answer,'false' AS res FROM 
+  (
+	SELECT d.id,d.word,a.answer FROM cet_four AS a JOIN (SELECT id,word FROM cet_four WHERE id=(SELECT wordprocess FROM USER WHERE wechatid=${wechatid}))d
+	WHERE a.id!= (SELECT wordprocess FROM USER WHERE wechatid=${wechatid})
+	ORDER BY RAND() LIMIT 0,3 
+   )b
+) u
+ ORDER BY RAND()
+</select>
+
+<select id="selectWord" resultType="lbl.entry.Word">
+SELECT C.id,C.word,C.answer,E.error1,F.error2,G.error3  FROM (SELECT id,word,answer FROM ${tableName} WHERE id=${id}) AS C 
+	JOIN (SELECT answer AS error1 FROM cet_four WHERE id=${id1}) AS E
+	JOIN (SELECT answer AS error2 FROM cet_four WHERE id=${id2}) AS F
+	JOIN (SELECT answer AS error3 FROM cet_four WHERE id=${id3}) AS G
+</select>
+</mapper>
+
